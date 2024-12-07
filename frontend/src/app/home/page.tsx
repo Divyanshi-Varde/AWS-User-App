@@ -3,7 +3,7 @@
 import { AddUserType } from "@/types/user.types";
 import { AddUserSchema } from "@/validations/add-user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 const HomePage = () => {
@@ -12,15 +12,43 @@ const HomePage = () => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<AddUserType>({
     resolver: zodResolver(AddUserSchema),
   });
 
-  const onSubmit: SubmitHandler<AddUserType> = (data) => {
-    setUsers((prev) => [...prev, data]);
-    reset();
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/api/users");
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const onSubmit: SubmitHandler<AddUserType> = async (data) => {
+    const response = await fetch("http://localhost:3001/api/user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const newUser = await response.json();
+      setUsers((prev) => [...prev, newUser]); 
+    } else {
+      console.error("Failed to submit user data");
+    }
   };
 
   return (
