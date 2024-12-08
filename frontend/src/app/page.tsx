@@ -9,7 +9,6 @@ import axios from "axios";
 
 const HomePage = () => {
   const [users, setUsers] = useState<AddUserType[]>([]);
-  const URL = process.env.NEXT_PUBLIC_API_URL;
 
   const {
     register,
@@ -21,7 +20,7 @@ const HomePage = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(URL as string);
+      const response = await axios.get("http://52.66.237.38:3001/api/users")
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -30,7 +29,7 @@ const HomePage = () => {
 
   const onSubmit: SubmitHandler<AddUserType> = async (data) => {
     try {
-      const response = await axios.post(URL as string, data);
+      const response = await axios.post("http://52.66.237.38:3001/api/users", data);
       setUsers((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Failed to submit user data:", error);
