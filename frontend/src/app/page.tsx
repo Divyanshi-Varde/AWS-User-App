@@ -1,101 +1,151 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { AddUserType } from "@/types/user.types";
+import { AddUserSchema } from "@/validations/add-user";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import axios from "axios";
+
+const HomePage = () => {
+  const [users, setUsers] = useState<AddUserType[]>([]);
+  const URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AddUserType>({
+    resolver: zodResolver(AddUserSchema),
+  });
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(URL as string);
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  const onSubmit: SubmitHandler<AddUserType> = async (data) => {
+    try {
+      const response = await axios.post(URL as string, data);
+      setUsers((prev) => [...prev, response.data]);
+    } catch (error) {
+      console.error("Failed to submit user data:", error);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-2xl font-bold text-center mb-6">User Form</h1>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white shadow-md rounded-lg p-6 space-y-4"
+      >
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">
+            First Name:
+          </label>
+          <input
+            type="text"
+            {...register("first_name")}
+            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 text-black"
+          />
+          {errors.first_name && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.first_name.message}
+            </p>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">
+            Last Name:
+          </label>
+          <input
+            type="text"
+            {...register("last_name")}
+            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 text-black"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          {errors.last_name && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.last_name.message}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">Address:</label>
+          <input
+            type="text"
+            {...register("address")}
+            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 text-black"
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+          {errors.address && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.address.message}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">Phone:</label>
+          <input
+            type="text"
+            {...register("phone")}
+            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 text-black"
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {errors.phone && (
+            <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+          )}
+        </div>
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">Email:</label>
+          <input
+            type="email"
+            {...register("email")}
+            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 text-black"
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          )}
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white font-bold py-2 rounded-md hover:bg-blue-600 transition"
+        >
+          Submit
+        </button>
+      </form>
+
+      <button
+        className="text-xl font-semibold mt-8 bg-gray-200 py-2 px-4 rounded-md hover:bg-gray-300 text-black"
+        onClick={fetchUsers}
+      >
+        Fetch All Users
+      </button>
+
+      {users.length === 0 && (
+        <p className="text-white mt-4">
+          No users fetched yet. Click the button above!
+        </p>
+      )}
+      <ul className="space-y-4 mt-4">
+        {users.map((user, index) => (
+          <li
+            key={index}
+            className="bg-gray-100 shadow rounded-md p-4 space-y-2 text-black"
+          >
+            <strong className="block text-lg font-bold">
+              {user.first_name} {user.last_name}
+            </strong>
+            <p>Address: {user.address}</p>
+            <p>Phone: {user.phone}</p>
+            <p>Email: {user.email}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
+
+export default HomePage;

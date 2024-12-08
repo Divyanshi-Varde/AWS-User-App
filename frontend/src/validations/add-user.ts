@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const AddUserSchema = z.object({
-  firstName: z
+  first_name: z
     .string()
     .min(1, "First name is required"),
-  lastName: z
+  last_name: z
     .string()
     .min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
